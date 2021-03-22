@@ -1,0 +1,5 @@
+{ "minNumberOfArguments" : 2,
+  "maxNumberOfArguments": 2,
+  "functionClass": "Less than",
+  "canBeReduced": "True"
+}
