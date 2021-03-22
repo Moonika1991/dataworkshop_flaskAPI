@@ -1,11 +1,18 @@
 import flask
+from flask import request, jsonify
+from DataWorkshop.QueryRunner import QueryRunner
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    return "<h1>Data workshop</h1>"
+    search = request.get_json()['query']
+    runner = QueryRunner(search)
+
+    data = runner.run()
+    return jsonify(data)
+
 
 app.run()

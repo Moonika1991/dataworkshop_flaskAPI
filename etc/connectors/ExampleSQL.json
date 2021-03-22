@@ -1,0 +1,5 @@
+{
+    "type" : "sql",
+    "db_name" : "COVID_19.db",
+    "table_name" : "covid_19"
+}
