@@ -6,12 +6,12 @@ from pathlib import Path
 class QueryParser:
 
     def __init__(self, search):
-        query = self.__separate(search)
-        self.source = query[0]
-        parsed = self.__parse(query[1])
-        self.__validate(parsed)
+        self.query = self.__separate(search)
+        self.source = self.query[0]
+        self.parsed = self.__parse(self.query[1])
+        self.__validate(self.parsed)
         # if there is no error parsed is valid list of functions
-        self.functions = parsed
+        self.functions = self.parsed
 
     def get_source(self):
         return self.source

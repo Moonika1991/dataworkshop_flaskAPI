@@ -1,5 +1,6 @@
 from .Connector import Connector
 import pandas as pd
+import copy
 
 
 class CSVConnector(Connector):
@@ -8,6 +9,11 @@ class CSVConnector(Connector):
         self._start_object = pd.read_csv(access.get('path'), sep=access.get('sep'))
 
     def execute(self, query):
+        # copy.deepcopy()- necessary to work on copy not a real query
+        res = self.exec_recurent(copy.deepcopy(query))
+        return res.to_json(orient='records')
+
+    def exec_recurent(self, query):
         fun = list(query[0].keys())[0]
         args = query[0][fun]
         res_args = args
@@ -21,7 +27,7 @@ class CSVConnector(Connector):
                     continue
                 # query must be a list of dicts (arg is dict)
                 temp_query = [arg]
-                part = self.execute(temp_query)
+                part = self.exec_recurent(temp_query)
                 if type(arg) is pd.DataFrame:
                     pos += 1
                     continue
@@ -30,7 +36,7 @@ class CSVConnector(Connector):
                     res_args.insert(pos, part)
                     pos += 1
             part_result[0][fun] = res_args
-            result = self.execute(part_result)
+            result = self.exec_recurent(part_result)
         elif all(type(arg) is str for arg in args):
             col = args[0]
             if args[1].isdigit():

@@ -1,5 +1,5 @@
 import json
-
+import copy
 from .Connector import Connector
 import sqlite3
 
@@ -12,9 +12,11 @@ class SQLConnector(Connector):
         self.tab_name = access.get('table_name')
 
     def execute(self, query):
+        # necessary to work on copy not a real query
+        query_copy = copy.deepcopy(query)
         fun = list(query[0].keys())[0]
-        args = query[0][fun]
-        formatted = self.format_query(query)
+        args = query_copy[0][fun]
+        formatted = self.format_query(query_copy)
         if fun == 'col':
             final_query = self.col(args)
         elif fun == 'exc':
@@ -30,7 +32,8 @@ class SQLConnector(Connector):
         return json_result
 
     def format_query(self, query):
-        global result
+        result = None
+        res_query = query
         fun = list(query[0].keys())[0]
         args = query[0][fun]
         if any(type(arg) is dict for arg in args):
@@ -45,8 +48,8 @@ class SQLConnector(Connector):
                 pos = args.index(arg)
                 args.pop(pos)
                 args.insert(pos, part)
-            query[0][fun] = args
-            result = self.format_query(query)
+            res_query[0][fun] = args
+            result = self.format_query(res_query)
         elif all(type(arg) is str for arg in args):
             col = args[0]
             if fun == 'equal':
@@ -67,7 +70,7 @@ class SQLConnector(Connector):
             elif fun == 'and':
                 result = self.conj(args)
             else:
-                result = query
+                result = res_query
         return result
 
     def alt(self, args):
