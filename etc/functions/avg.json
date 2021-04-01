@@ -1,0 +1,5 @@
+{ "minNumberOfArguments" : 1,
+  "maxNumberOfArguments": 1,
+  "functionClass": "sum",
+  "canBeReduced": "True"
+}
