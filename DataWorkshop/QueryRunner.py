@@ -21,15 +21,7 @@ class QueryRunner():
         result = None
         # dealing with complex functions
         if list(self.func[0].keys())[0] == 'sum':
-            sum = 0
-            complex = list(self.func[0].keys())[0]
-            simple = self.func[0][complex]
-            for con in self.connectors:
-                part = con.execute(simple)
-                for dic in part:
-                    for key in dic:
-                        sum += dic[key]
-            result = sum
+            result = self.sum()
 
         elif len(self.connectors) > 1:
             result = self.connectors[0].execute(self.func)
@@ -39,3 +31,14 @@ class QueryRunner():
 
         return result
 
+    def sum(self):
+        complex = list(self.func[0].keys())[0]
+        simple = self.func[0][complex]
+        sum_result = {}
+        for con in self.connectors:
+            part = con.execute(simple)
+            for p in part:
+                for k in p.keys():
+                    sum_result[k] = sum_result.get(k, 0) + p[k]
+
+        return sum_result
