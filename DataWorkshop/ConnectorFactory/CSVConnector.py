@@ -11,7 +11,7 @@ class CSVConnector(Connector):
     def execute(self, query):
         # copy.deepcopy()- necessary to work on copy not a real query
         res = self.exec_recurent(copy.deepcopy(query))
-        return res.to_json(orient='records')
+        return res.to_dict('records')
 
     def exec_recurent(self, query):
         fun = list(query[0].keys())[0]

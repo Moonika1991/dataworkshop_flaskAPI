@@ -9,19 +9,36 @@ class QueryRunner():
         self.parser = QueryParser(query)
         self.source = self.parser.get_source()
         self.func = self.parser.get_func()
-        connector_factory = ConnectorFactory()
+        self.connector_factory = ConnectorFactory()
         self.connectors = []
         for s in self.source:
-            self.connectors.append(connector_factory.create_connector(s))
+            self.connectors.append(self.connector_factory.create_connector(s))
 
     def get_source(self):
         return self.source
 
     def run(self):
         result = None
-        if len(self.connectors) > 1:
+        # dealing with complex functions
+        if list(self.func[0].keys())[0] == 'sum':
+            result = self.sum()
+
+        elif len(self.connectors) > 1:
+            result = self.connectors[0].execute(self.func)
             for con in self.connectors[1:]:
                 part = con.execute(self.func)
                 result = merge(result, part)
 
         return result
+
+    def sum(self):
+        complex = list(self.func[0].keys())[0]
+        simple = self.func[0][complex]
+        sum_result = {}
+        for con in self.connectors:
+            part = con.execute(simple)
+            for p in part:
+                for k in p.keys():
+                    sum_result[k] = sum_result.get(k, 0) + p[k]
+
+        return sum_result
