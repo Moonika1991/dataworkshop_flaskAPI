@@ -22,8 +22,9 @@ class QueryRunner():
         # dealing with complex functions
         if list(self.func[0].keys())[0] == 'sum':
             result = self.sum()
-
-        elif len(self.connectors) > 1:
+        elif list(self.func[0].keys())[0] == 'avg':
+            result = self.avg()
+        else:
             result = self.connectors[0].execute(self.func)
             for con in self.connectors[1:]:
                 part = con.execute(self.func)
@@ -42,3 +43,24 @@ class QueryRunner():
                     sum_result[k] = sum_result.get(k, 0) + p[k]
 
         return sum_result
+
+    def avg(self):
+        complex = list(self.func[0].keys())[0]
+        simple = self.func[0][complex]
+        elem_number = 0
+        sum = {}
+        for con in self.connectors:
+            part = con.execute(simple)
+            elem_number += len(part)
+            for p in part:
+                for k in p.keys():
+                    sum[k] = sum.get(k, 0) + p[k]
+
+        avg = {}
+
+        for key in sum.keys():
+            avg[key] = avg.get(key, sum[key]/elem_number)
+
+        return avg
+
+
