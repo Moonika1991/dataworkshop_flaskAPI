@@ -37,6 +37,8 @@ class CSVConnector(Connector):
                     pos += 1
             part_result[0][fun] = res_args
             result = self.exec_recurent(part_result)
+        elif fun == 'col':
+            result = self.col(args)
         elif all(type(arg) is str for arg in args):
             col = args[0]
             if args[1].isdigit():
@@ -57,8 +59,6 @@ class CSVConnector(Connector):
             result = self.alt(args)
         elif fun == 'and':
             result = self.conj(args)
-        elif fun == 'col':
-            result = self.col(args)
         elif fun == 'exc':
             result = self.exc(args)
         return result
@@ -80,11 +80,18 @@ class CSVConnector(Connector):
         return result
 
     def col(self, args):
-        df = args[0]
         result = pd.DataFrame()
-        for arg in args[1:]:
-            col = df[arg]
+        if all(type(arg) is str for arg in args):
+            df = self._start_object
+            col = df[args]
+            # concat axis=1/'columns'
             result = pd.concat([result, col], 1)
+        else:
+            df = args[0]
+            for arg in args[1:]:
+                col = df[arg]
+                # concat axis=1/'columns'
+                result = pd.concat([result, col], 1)
         return result
 
     def exc(self, args):
