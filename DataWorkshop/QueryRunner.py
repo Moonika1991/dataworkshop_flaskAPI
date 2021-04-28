@@ -43,19 +43,24 @@ class QueryRunner():
         complex = list(self.func[0].keys())[0]
         simple = self.func[0][complex]
         sum_result = {}
+        res_list = []
         for con in self.connectors:
             part = con.execute(simple)
             for p in part:
                 for k in p.keys():
                     sum_result[k] = sum_result.get(k, 0) + p[k]
 
-        return sum_result
+        # result must be a list of dicts
+        res_list.append(sum_result)
+
+        return res_list
 
     def avg(self):
         complex = list(self.func[0].keys())[0]
         simple = self.func[0][complex]
         elem_number = 0
         sum = {}
+        res_list = []
         for con in self.connectors:
             part = con.execute(simple)
             elem_number += len(part)
@@ -68,7 +73,10 @@ class QueryRunner():
         for key in sum.keys():
             avg[key] = avg.get(key, sum[key] / elem_number)
 
-        return avg
+        # result must be a list of dicts
+        res_list.append(avg)
+
+        return res_list
 
     '''
     sort function isn't needed
