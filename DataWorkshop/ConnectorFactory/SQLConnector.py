@@ -19,6 +19,7 @@ class SQLConnector(Connector):
         formatted = self.format_query(query_copy)
         if fun == 'col':
             final_query = self.col(args)
+            print(final_query)
         elif fun == 'exc':
             final_query = self.exc(args)
         else:
@@ -91,10 +92,18 @@ class SQLConnector(Connector):
 
     def col(self, args):
         sql_query = 'SELECT '
-        for arg in args[1:]:
-            sql_query += '"' + arg + '", '
-        sql_query = sql_query[:len(sql_query)-2]
-        sql_query += ' FROM ' + self.tab_name + ' WHERE ' + args[0]
+        check = copy.deepcopy(args[0])
+        if (check.find('=') != -1) or (check.find('>') != -1) or (check.find('<') != -1):
+            for arg in args[1:]:
+                sql_query += '"' + arg + '", '
+            sql_query = sql_query[:len(sql_query)-2]
+            sql_query += ' FROM ' + self.tab_name + ' WHERE ' + args[0]
+        else:
+            for arg in args:
+                sql_query += '"' + arg + '", '
+            sql_query = sql_query[:len(sql_query) - 2]
+            sql_query += ' FROM ' + self.tab_name
+
         return sql_query
 
     # except function

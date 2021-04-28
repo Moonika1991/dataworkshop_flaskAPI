@@ -59,13 +59,22 @@ class QueryParser:
                 result.append({tmp['name']: temp})
             elif "(" in tmp['fullmatch']:
                 temp = []
-                for arg in tmp['args']:
-                    if '"' in arg:
-                        last_char = len(arg)-1
+                if type(tmp['args'] is str):
+                    arg = tmp['args']
+                    if '"' in tmp["args"]:
+                        last_char = len(arg) - 1
                         arg = arg[1:last_char]
                         temp.append(arg.replace('\"', '"'))
                     else:
-                        temp.append(arg)
+                        temp.append(tmp['args'])
+                else:
+                    for arg in tmp['args']:
+                        if '"' in arg:
+                            last_char = len(arg)-1
+                            arg = arg[1:last_char]
+                            temp.append(arg.replace('\"', '"'))
+                        else:
+                            temp.append(arg)
                 result.append({tmp['name']: temp})
             else:
                 result.append(tmp['name'])

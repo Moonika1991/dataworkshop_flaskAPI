@@ -1,4 +1,4 @@
-{ "minNumberOfArguments" : 2,
+{ "minNumberOfArguments" : 1,
   "maxNumberOfArguments": -1,
   "functionClass": "column selection",
   "canBeReduced": "True"
