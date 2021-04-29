@@ -39,6 +39,8 @@ class CSVConnector(Connector):
             result = self.exec_recurent(part_result)
         elif fun == 'col':
             result = self.col(args)
+        elif fun == 'exc':
+            result = self.exc(args)
         elif all(type(arg) is str for arg in args):
             col = args[0]
             if args[1].isdigit():
@@ -59,8 +61,7 @@ class CSVConnector(Connector):
             result = self.alt(args)
         elif fun == 'and':
             result = self.conj(args)
-        elif fun == 'exc':
-            result = self.exc(args)
+
         return result
 
     def alt(self, args):
@@ -95,7 +96,14 @@ class CSVConnector(Connector):
         return result
 
     def exc(self, args):
-        result = args[0]
-        for arg in args[1:]:
-            result = result.drop(arg, 1)
+        if all(type(arg) is str for arg in args):
+            result = self._start_object
+            for arg in args:
+                # axis = 1 to drop column not index
+                result = result.drop(arg, 1)
+        else:
+            result = args[0]
+            for arg in args[1:]:
+                # axis = 1 to drop column not index
+                result = result.drop(arg, 1)
         return result

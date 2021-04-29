@@ -19,7 +19,6 @@ class SQLConnector(Connector):
         formatted = self.format_query(query_copy)
         if fun == 'col':
             final_query = self.col(args)
-            print(final_query)
         elif fun == 'exc':
             final_query = self.exc(args)
         else:
@@ -110,11 +109,24 @@ class SQLConnector(Connector):
     def exc(self, args):
         self.cur.execute('SELECT * FROM ' + self.tab_name)
         col_names = [tuple[0] for tuple in self.cur.description]
-        for arg in args[1:]:
-            col_names.remove(arg)
+        check = copy.deepcopy(args[0])
+        # to get to know if need to choose from whole datatbase or partial result
+        comp = False
+
+        # check if any of signs: '<>=' is present in arg
+        if (check.find('=') != -1) or (check.find('>') != -1) or (check.find('<') != -1):
+            comp = True;
+            for arg in args[1:]:
+                col_names.remove(arg)
+        else:
+            for arg in args:
+                col_names.remove(arg)
         sql_query = 'SELECT '
         for name in col_names:
             sql_query += '"' + name + '", '
         sql_query = sql_query[:len(sql_query) - 2]
-        sql_query += ' FROM ' + self.tab_name + ' WHERE ' + args[0]
+        sql_query += ' FROM ' + self.tab_name
+        if (comp):
+            sql_query += ' WHERE ' + args[0]
+
         return sql_query
