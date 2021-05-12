@@ -30,7 +30,6 @@ class QueryRunner():
         # sort function isn't necessary
         # elif list(self.func[0].keys())[0] == 'sort':
         # result = self.sort()
-
         else:
             result = self.connectors[0].execute(self.func)
             for con in self.connectors[1:]:
