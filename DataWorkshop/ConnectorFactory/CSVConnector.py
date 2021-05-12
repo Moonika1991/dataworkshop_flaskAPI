@@ -10,58 +10,41 @@ class CSVConnector(Connector):
 
     def execute(self, query):
         # copy.deepcopy()- necessary to work on copy not a real query
-        res = self.exec_recurent(copy.deepcopy(query))
+        # real query can be necessary for other connectors
+        res = self.exec_recurrent(copy.deepcopy(query))
         return res.to_dict('records')
 
-    def exec_recurent(self, query):
-        fun = list(query[0].keys())[0]
-        args = query[0][fun]
-        res_args = args
-        part_result = query
-        result = pd.DataFrame()
-        if any(type(arg) is dict for arg in args):
-            pos = 0
-            for arg in args:
-                if type(arg) is str:
-                    pos += 1
-                    continue
-                # query must be a list of dicts (arg is dict)
-                temp_query = [arg]
-                part = self.exec_recurent(temp_query)
-                if type(arg) is pd.DataFrame:
-                    pos += 1
-                    continue
-                else:
-                    res_args.pop(pos)
-                    res_args.insert(pos, part)
-                    pos += 1
-            part_result[0][fun] = res_args
-            result = self.exec_recurent(part_result)
-        elif fun == 'col':
-            result = self.col(args)
-        elif fun == 'exc':
-            result = self.exc(args)
-        elif all(type(arg) is str for arg in args):
-            col = args[0]
-            if args[1].isdigit():
-                val = float(args[1])
-            else:
-                val = args[1]
-            if fun == 'equal':
-                result = self._start_object.loc[self._start_object[col] == val]
-            elif fun == 'gt':
-                result = self._start_object.loc[self._start_object[col] > val]
-            elif fun == 'lt':
-                result = self._start_object.loc[self._start_object[col] < val]
-            elif fun == 'goe':
-                result = self._start_object.loc[self._start_object[col] >= val]
-            elif fun == 'loe':
-                result = self._start_object.loc[self._start_object[col] <= val]
-        elif fun == 'or':
-            result = self.alt(args)
-        elif fun == 'and':
-            result = self.conj(args)
+    def equal(self, args):
+        col = args[0]
+        if args[1].isdigit():
+            val = float(args[1])
+        else:
+            val = args[1]
+        result = self._start_object.loc[self._start_object[col] == val]
+        return result
 
+    def gt(self, args):
+        col = args[0]
+        val = float(args[1])
+        result = self._start_object.loc[self._start_object[col] > val]
+        return result
+
+    def lt(self, args):
+        col = args[0]
+        val = float(args[1])
+        result = self._start_object.loc[self._start_object[col] < val]
+        return result
+
+    def goe(self, args):
+        col = args[0]
+        val = float(args[1])
+        result = self._start_object.loc[self._start_object[col] >= val]
+        return result
+
+    def loe(self, args):
+        col = args[0]
+        val = float(args[1])
+        result = self._start_object.loc[self._start_object[col] <= val]
         return result
 
     def alt(self, args):
@@ -106,4 +89,50 @@ class CSVConnector(Connector):
             for arg in args[1:]:
                 # axis = 1 to drop column not index
                 result = result.drop(arg, 1)
+        return result
+
+    global switch
+    switch = {
+        "equal": equal,
+        "gt": gt,
+        "lt": lt,
+        "goe": goe,
+        "loe": loe,
+        "col": col,
+        "exc": exc,
+        "or": alt,
+        "and": conj
+    }
+
+    def switcher(self, fun, args):
+        func = switch.get(fun)
+        return func(self, args)
+
+    def exec_recurrent(self, query):
+        fun = list(query[0].keys())[0]
+        args = query[0][fun]
+        res_args = args
+        part_result = query
+        result = pd.DataFrame()
+        if any(type(arg) is dict for arg in args):
+            pos = 0
+            for arg in args:
+                if type(arg) is str:
+                    pos += 1
+                    continue
+                # query must be a list of dicts (arg is dict)
+                temp_query = [arg]
+                part = self.exec_recurrent(temp_query)
+                if type(arg) is pd.DataFrame:
+                    pos += 1
+                    continue
+                else:
+                    res_args.pop(pos)
+                    res_args.insert(pos, part)
+                    pos += 1
+            part_result[0][fun] = res_args
+            result = self.exec_recurrent(part_result)
+        else:
+            result = self.switcher(fun, args)
+
         return result
