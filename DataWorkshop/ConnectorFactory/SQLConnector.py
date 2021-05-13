@@ -57,6 +57,11 @@ class SQLConnector(Connector):
                     result = '"' + col + '"' + '=' + '"' + args[1] + '"'
                 else:
                     result = '"' + col + '"' + '=' + args[1]
+            elif fun == 'ne':
+                if type(args[1]) is str:
+                    result = '"' + col + '"' + '!=' + '"' + args[1] + '"'
+                else:
+                    result = '"' + col + '"' + '!=' + args[1]
             elif fun == 'gt':
                 result = '"' + col + '"' + '>' + args[1]
             elif fun == 'lt':

@@ -23,6 +23,15 @@ class CSVConnector(Connector):
         result = self._start_object.loc[self._start_object[col] == val]
         return result
 
+    def ne(self, args):
+        col = args[0]
+        if args[1].isdigit():
+            val = float(args[1])
+        else:
+            val = args[1]
+        result = self._start_object.loc[self._start_object[col] != val]
+        return result
+
     def gt(self, args):
         col = args[0]
         val = float(args[1])
@@ -91,9 +100,9 @@ class CSVConnector(Connector):
                 result = result.drop(arg, 1)
         return result
 
-    global switch
     switch = {
         "equal": equal,
+        "ne": ne,
         "gt": gt,
         "lt": lt,
         "goe": goe,
@@ -105,7 +114,7 @@ class CSVConnector(Connector):
     }
 
     def switcher(self, fun, args):
-        func = switch.get(fun)
+        func = self.switch.get(fun)
         return func(self, args)
 
     def exec_recurrent(self, query):
