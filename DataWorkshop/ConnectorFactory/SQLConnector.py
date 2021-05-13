@@ -31,52 +31,37 @@ class SQLConnector(Connector):
 
         return json_result
 
-    def format_query(self, query):
-        result = None
-        res_query = query
-        fun = list(query[0].keys())[0]
-        args = query[0][fun]
-        if any(type(arg) is dict for arg in args):
-            pos = 0
-            for arg in args:
-                if type(arg) is str:
-                    pos += 1
-                    continue
-                # query must be a list of dicts (arg is dict)
-                temp_query = [arg]
-                part = self.format_query(temp_query)
-                pos = args.index(arg)
-                args.pop(pos)
-                args.insert(pos, part)
-            res_query[0][fun] = args
-            result = self.format_query(res_query)
-        elif all(type(arg) is str for arg in args):
-            col = args[0]
-            if fun == 'equal':
-                if type(args[1]) is str:
-                    result = '"' + col + '"' + '=' + '"' + args[1] + '"'
-                else:
-                    result = '"' + col + '"' + '=' + args[1]
-            elif fun == 'ne':
-                if type(args[1]) is str:
-                    result = '"' + col + '"' + '!=' + '"' + args[1] + '"'
-                else:
-                    result = '"' + col + '"' + '!=' + args[1]
-            elif fun == 'gt':
-                result = '"' + col + '"' + '>' + args[1]
-            elif fun == 'lt':
-                result = '"' + col + '"' '<' + args[1]
-            elif fun == 'goe':
-                result = '"' + col + '"' + '>=' + args[1]
-            elif fun == 'loe':
-                result = '"' + col + '"' '<=' + args[1]
-            elif fun == 'or':
-                result = self.alt(args)
-            elif fun == 'and':
-                result = self.conj(args)
-            else:
-                result = res_query
-        return result
+    def equal(self, args):
+        if type(args[1]) is str:
+            res = '"' + args[1] + '"' + '=' + '"' + args[1] + '"'
+        else:
+            res = '"' + args[1] + '"' + '=' + args[1]
+
+        return res
+
+    def ne(self, args):
+        if type(args[1]) is str:
+            res = '"' + args[0] + '"' + '!=' + '"' + args[1] + '"'
+        else:
+            res = '"' + args[0] + '"' + '!=' + args[1]
+
+        return res
+
+    def gt(self, args):
+        res = '"' + args[0] + '"' + '>' + args[1]
+        return res
+
+    def lt(self, args):
+        res = '"' + args[0] + '"' + '<' + args[1]
+        return res
+
+    def goe(self, args):
+        res = '"' + args[0] + '"' + '>=' + args[1]
+        return res
+
+    def loe(self, args):
+        res = '"' + args[0] + '"' + '<=' + args[1]
+        return res
 
     def alt(self, args):
         part = ''
@@ -135,3 +120,43 @@ class SQLConnector(Connector):
             sql_query += ' WHERE ' + args[0]
 
         return sql_query
+
+    switch = {
+        "equal": equal,
+        "ne": ne,
+        "gt": gt,
+        "lt": lt,
+        "goe": goe,
+        "loe": loe,
+        "col": col,
+        "exc": exc,
+        "or": alt,
+        "and": conj
+    }
+
+    def switcher(self, fun, args):
+        func = self.switch.get(fun)
+        return func(self, args)
+
+    def format_query(self, query):
+        result = None
+        res_query = query
+        fun = list(query[0].keys())[0]
+        args = query[0][fun]
+        if any(type(arg) is dict for arg in args):
+            pos = 0
+            for arg in args:
+                if type(arg) is str:
+                    pos += 1
+                    continue
+                # query must be a list of dicts (arg is dict)
+                temp_query = [arg]
+                part = self.format_query(temp_query)
+                pos = args.index(arg)
+                args.pop(pos)
+                args.insert(pos, part)
+            res_query[0][fun] = args
+            result = self.format_query(res_query)
+        elif all(type(arg) is str for arg in args):
+            result = self.switcher(fun, args)
+        return result
