@@ -121,23 +121,6 @@ class SQLConnector(Connector):
 
         return sql_query
 
-    switch = {
-        "equal": equal,
-        "ne": ne,
-        "gt": gt,
-        "lt": lt,
-        "goe": goe,
-        "loe": loe,
-        "col": col,
-        "exc": exc,
-        "or": alt,
-        "and": conj
-    }
-
-    def switcher(self, fun, args):
-        func = self.switch.get(fun)
-        return func(self, args)
-
     def format_query(self, query):
         result = None
         res_query = query
@@ -160,3 +143,16 @@ class SQLConnector(Connector):
         elif all(type(arg) is str for arg in args):
             result = self.switcher(fun, args)
         return result
+
+    switch = {
+        "equal": equal,
+        "ne": ne,
+        "gt": gt,
+        "lt": lt,
+        "goe": goe,
+        "loe": loe,
+        "col": col,
+        "exc": exc,
+        "or": alt,
+        "and": conj
+    }

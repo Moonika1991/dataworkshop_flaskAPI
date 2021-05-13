@@ -100,23 +100,6 @@ class CSVConnector(Connector):
                 result = result.drop(arg, 1)
         return result
 
-    switch = {
-        "equal": equal,
-        "ne": ne,
-        "gt": gt,
-        "lt": lt,
-        "goe": goe,
-        "loe": loe,
-        "col": col,
-        "exc": exc,
-        "or": alt,
-        "and": conj
-    }
-
-    def switcher(self, fun, args):
-        func = self.switch.get(fun)
-        return func(self, args)
-
     def exec_recurrent(self, query):
         fun = list(query[0].keys())[0]
         args = query[0][fun]
@@ -145,3 +128,16 @@ class CSVConnector(Connector):
             result = self.switcher(fun, args)
 
         return result
+
+    switch = {
+        "equal": equal,
+        "ne": ne,
+        "gt": gt,
+        "lt": lt,
+        "goe": goe,
+        "loe": loe,
+        "col": col,
+        "exc": exc,
+        "or": alt,
+        "and": conj
+    }

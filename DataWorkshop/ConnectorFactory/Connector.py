@@ -47,3 +47,7 @@ class Connector(ABC):
     @abstractmethod
     def exc(self, args):
         pass
+
+    def switcher(self, fun, args):
+        func = self.switch.get(fun)
+        return func(self, args)
