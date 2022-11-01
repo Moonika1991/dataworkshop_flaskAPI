@@ -14,5 +14,6 @@ class ConnectorFactory(ABC):
         connector = json.load(open("%s\\etc\\connectors\\%s.json" % (path, filename)))
         targetclass = connector.get('type').upper() + 'Connector'
 
-        return  globals()[targetclass](connector)
+        # creates concrete connector
+        return globals()[targetclass](connector)
 

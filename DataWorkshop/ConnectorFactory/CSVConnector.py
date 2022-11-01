@@ -56,6 +56,7 @@ class CSVConnector(Connector):
         result = self._start_object.loc[self._start_object[col] <= val]
         return result
 
+    # or function
     def alt(self, args):
         result = pd.DataFrame()
         for arg in args:
@@ -63,6 +64,7 @@ class CSVConnector(Connector):
             result = result.sort_index()
         return result
 
+    # and function
     def conj(self, args):
         comp = args[0]
         result = pd.DataFrame()
@@ -87,6 +89,7 @@ class CSVConnector(Connector):
                 result = pd.concat([result, col], 1)
         return result
 
+    # gets columns except given ones
     def exc(self, args):
         if all(type(arg) is str for arg in args):
             result = self._start_object
@@ -126,7 +129,6 @@ class CSVConnector(Connector):
             result = self.exec_recurrent(part_result)
         else:
             result = self.switcher(fun, args)
-
         return result
 
     switch = {
