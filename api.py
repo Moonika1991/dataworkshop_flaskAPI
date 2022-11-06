@@ -1,12 +1,10 @@
-import flask
+from flask import Flask
 from flask_cors import cross_origin
 from flask import request, jsonify
 from DataWorkshop.QueryRunner import QueryRunner
 
-app = flask.Flask(__name__)
-app.config['CORS_HEADERS'] = 'application/json'
-app.config["DEBUG"] = True
-app.config["JSON_SORT_KEYS"] = False
+app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 
 
 @app.route('/',methods=['POST'])

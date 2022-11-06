@@ -7,7 +7,7 @@ class QueryParser:
 
     def __init__(self, search):
         self.query = self.__separate(search)
-        self.source = self.query[0]
+        self.source = self.query[0] # separate func returns table , where 1st element is source
         self.parsed = self.__parse(self.query[1])
         self.__validate(self.parsed)
         # if there is no error parsed is valid list of functions
@@ -20,13 +20,18 @@ class QueryParser:
         return self.functions
 
     def __separate(self, query):
-        pattern = r'source\((?P<args>(?:[^\(\)])*)\)'
+        # checks query pattern and separates source name, from functions part of query
+        pattern = r'source\((?P<args>(?:[^\(\)])*)\)'  # source pattern
         match = regex.search(pattern, query)
+        # search source pattern in query
         if match is None:
             raise Exception('Incorrect source format!')
         s = match.group('args').replace('"', '')
+        # returns a part with match(source) and gets rid of " signs
         source = s.split(',')
+        # split sources (if there's more than one source) to a list
         func = query[match.end()+1:]
+        # func => query starting from sign after match(source) ends
         return source, func
 
     # syntactic analysis of query
@@ -80,24 +85,26 @@ class QueryParser:
                 result.append(tmp['name'])
         return result
 
-    # semantic analysis of search tree
+    # go thru search tree to check if func have a valid number of args
     def __validate(self, search_tree):
-        # partial path to json schema
-        path = Path(__file__).resolve().parents[1]
+        path = Path(__file__).resolve().parents[1]  # partial path to json schema
         result = True
         for edge in search_tree:
-            if type(edge) == str:
+            if type(edge) == str:  # continue if argument is string not a func, maximum depth level
                 continue
             fun = list(edge.keys())[0]
+            # fun => dict key from tree edge is a function name
             result = self.__validate(edge[fun])
             if not result:
-                raise Exception('Incorrect query! Semantic analysis failed!')
+                raise Exception('Incorrect query! Some function has invalid number of arguments!')
             schema = json.load(open("%s\\etc\\functions\\%s.json" % (path, fun)))
+            # loads function schema from json file
             if (int(schema.get('maxNumberOfArguments')) == -1) & (int(schema.get('minNumberOfArguments')) <= len(
-                    edge[fun])):
+                    edge[fun])):  # if func can have infinite number of args, just check if it has more than min
                 result = True
+            # check min and max number of args
             elif int(schema.get('minNumberOfArguments')) <= len(edge[fun]) <= int(schema.get('maxNumberOfArguments')):
                 result = True
             else:
-                raise Exception('Incorrect query! Semantic analysis failed!')
+                raise Exception('Incorrect query! Some function has invalid number of arguments!')
         return result

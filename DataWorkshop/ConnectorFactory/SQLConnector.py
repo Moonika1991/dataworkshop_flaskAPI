@@ -23,7 +23,6 @@ class SQLConnector(Connector):
             final_query = self.exc(args)
         else:
             final_query = 'SELECT * FROM ' + self.tab_name + ' WHERE ' + formatted
-
         rows = self.cur.execute(final_query).fetchall()
         keys = [tup[0] for tup in self.cur.description]
 
@@ -33,9 +32,9 @@ class SQLConnector(Connector):
 
     def equal(self, args):
         if type(args[1]) is str:
-            res = '"' + args[1] + '"' + '=' + '"' + args[1] + '"'
+            res = '"' + args[0] + '"' + '=' + '"' + args[1] + '"'
         else:
-            res = '"' + args[1] + '"' + '=' + args[1]
+            res = '"' + args[0] + '"' + '=' + args[1]
 
         return res
 
@@ -98,7 +97,7 @@ class SQLConnector(Connector):
     # except function
     def exc(self, args):
         self.cur.execute('SELECT * FROM ' + self.tab_name)
-        col_names = [tuple[0] for tuple in self.cur.description]
+        col_names = [tup[0] for tup in self.cur.description]
         check = copy.deepcopy(args[0])
         # to get to know if need to choose from whole datatbase or partial result
         comp = False
