@@ -1,0 +1,5 @@
+{
+  "type" : "csv",
+  "path" : "C:\\Users\\monik\\PycharmProjects\\dataworkshop_flaskAPI\\covid_19.csv",
+  "sep" : ","
+}

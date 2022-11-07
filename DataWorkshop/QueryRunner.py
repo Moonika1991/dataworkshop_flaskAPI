@@ -31,10 +31,14 @@ class QueryRunner():
             part = con.execute(self.func)
             result = result + part
 
-        if self.func[1]:
-            if list(self.func[1].keys())[0] == 'agg':
-                agg_args = self.func[1]['agg']
-                result = self.agg(result, agg_args)
+        if len(self.func) > 1:
+            for func in self.func[1:]:
+                if list(func.keys())[0] == 'agg':
+                    agg_args = func['agg']
+                    result = self.agg(result, agg_args)
+                elif list(func.keys())[0] == 'pivot':
+                    pivot_args = func['pivot']
+                    result = self.pivot(result, pivot_args)
         return result
 
     def sum(self):
@@ -109,56 +113,50 @@ class QueryRunner():
                     for key in keys_list:
                         # can't work on actual tab, because it'll destroy the loop
                         dict_res[key] = copy.deepcopy(tab[0][key])
-                    dict_res['sum'] = sum_res
+                    dict_res['sum'] = sum_res  # add sum to result dictionary
                     if dict_res not in result:  # to avoid duplicates
                         result.append(dict_res)
         return result
-    '''
-    def agg(self, dict_list, arg_list):
-        print(dict_list)
-        results = []
-        attrs = []  # attributes
-        metcs = []  # metrics
-        for elem in arg_list:
-            if type(elem) is str:
-                attrs.append(elem)
-            else:
-                metcs.append(elem)
 
+    def pivot(self, dict_list, args):
+        result = []
+        for dict in dict_list:
+            # res_dict = {row_name : value of this key from dict, value of dict key for column key from query :
+            res_dict = {args[1]: dict[args[1]], dict[args[0]]: dict[args[2]]}
+            for dic in dict_list:
+                if dict[args[1]] == dic[args[1]]:
+                    if dic[args[0]] not in res_dict.keys():
+                        res_dict[dic[args[0]]] = dic[args[2]]
+            if res_dict not in result:
+                result.append(res_dict)
+
+        # to fill missing keys
+        for dict in result:
+            for dic in result:
+                for key in dic.keys():
+                    tmp = {}
+                    if key not in dict.keys():
+                        dict[key] = 0
+        result = self.sort_keys(result)
+           #  dict = sorted(dict.items(), key=lambda x: datetime.strptime(x[0], '%d.%m.%Y'), reverse=False)
+        return result
+
+    def sort_keys(self, dict_list):
+        res = []
         for dic in dict_list:
-            if not self.check_attrs(attrs,dic.keys()):
-               continue #if there is no attribute fields in row, skip
-            if not self.check_agg_result(results,dic,attrs):
-                r = {}
-                for attr in attrs:
-                    r[attr] = dic[attr]
-                results.append(r)
-        for result in results:
-            #check if result attrs are same as event attr
-            for m in metcs:
-                action = (list(m.keys())[0])
-                r=0
-                if action == "sum" and m["sum"][0] in list(dic.keys()):
-                    r = r + dic[m["sum"][0]]
+            temp = {}
+            key = list(dic.keys())[0]
+            value = dic[key]
+            temp[key] = value  # save dict key and value in temp
+            dic.pop(key)
+            dic = sorted(dic.items(), key=lambda x: datetime.strptime(x[0], '%Y.%m.%d'), reverse=False)
+            dic = dict(dic)
+            temp.update(dic)
+            res.append(temp)
 
-
-        return results
-
-    def check_attrs(self,attrs,keys):
-        for attr in attrs:
-            if attr not in keys:
-                return False
-        return True
-
-    def check_agg_result(self,results,dic,attrs):
-        res = False
-        for result in results:
-            res = True
-            for attr in attrs:
-                if dic[attr] != result[attr]:
-                    return False
         return res
 
+    '''
     sort function isn't needed problem solved with app.config['JSON_SORT_KEYS'] = False
     def sort(self):
         complex = list(self.func[0].keys())[0]

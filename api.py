@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import cross_origin
-from flask import request, jsonify
+from flask import request, json
 from DataWorkshop.QueryRunner import QueryRunner
 
 app = Flask(__name__)
@@ -15,7 +15,7 @@ def home():
     runner = QueryRunner(search)
 
     data = runner.run()
-    response = jsonify(data)
+    response = json.dumps(data, indent=2)
 
     return response
 
