@@ -31,7 +31,7 @@ class QueryRunner():
             part = con.execute(self.func)
             result = result + part
 
-        if len(self.func) > 1:
+        if len(self.func) > 1:  # if complex functions are in query
             for func in self.func[1:]:
                 if list(func.keys())[0] == 'agg':
                     agg_args = func['agg']
