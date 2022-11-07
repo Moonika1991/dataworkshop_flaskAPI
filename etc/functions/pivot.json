@@ -1,0 +1,5 @@
+{ "minNumberOfArguments" : 3,
+  "maxNumberOfArguments": -1,
+  "functionClass": "pivot",
+  "canBeReduced": "False"
+}

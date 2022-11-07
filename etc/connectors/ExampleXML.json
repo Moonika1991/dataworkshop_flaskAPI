@@ -1,0 +1,11 @@
+{
+  "type" : "re",
+  "path" : "plik.xml",
+  "event_definition" : "(<event>.*?</event>)",
+  "attributes" : {
+    "Country/Region" : "<country>(.*?)</country>",
+    "Datetime" : "<timestamp>(.*?)</timestamp>",
+    "Count" : "<count>(.*?)</count>",
+    "Price" : "<price>(.*?)</price>"
+  }
+}

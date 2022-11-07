@@ -1,0 +1,5 @@
+{
+    "type" : "sql",
+    "db_name" : "C:\\Users\\monik\\PycharmProjects\\dataworkshop_flaskAPI\\db0.db",
+    "table_name" : "Krzak"
+}
