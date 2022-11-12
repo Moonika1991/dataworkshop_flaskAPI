@@ -4,6 +4,7 @@ import json
 from .Connector import Connector
 from .SQLConnector import SQLConnector
 from .CSVConnector import CSVConnector
+from .JSONConnector import JSONConnector
 
 
 class ConnectorFactory(ABC):

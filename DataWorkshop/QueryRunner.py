@@ -116,6 +116,20 @@ class QueryRunner():
                     dict_res['sum'] = sum_res  # add sum to result dictionary
                     if dict_res not in result:  # to avoid duplicates
                         result.append(dict_res)
+            elif list(func.keys())[0] == 'avg':
+                for tab in res_tab:
+                    sum_res = 0
+                    i = 0
+                    for t in tab:
+                        sum_res = sum_res + t[func['avg'][0]]
+                        i = i +1
+                    avg = sum_res/i
+                    dict_res = {}
+                    for key in keys_list:
+                        dict_res[key] = copy.deepcopy(tab[0][key])
+                    dict_res['avg'] = avg
+                    if dict_res not in result:
+                        result.append(dict_res)
         return result
 
     def pivot(self, dict_list, args):
