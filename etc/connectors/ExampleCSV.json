@@ -1,5 +1,5 @@
 {
   "type" : "csv",
-  "path" : "C:\\Users\\monik\\PycharmProjects\\dataworkshop_flaskAPI\\time_series_covid19_confirmed_global.csv",
+  "path" : "C:\\Users\\monik\\PycharmProjects\\dataworkshop_flaskAPI\\time_series_covid19_confirmed_poland.csv",
   "sep" : ","
 }
