@@ -105,6 +105,7 @@ class QueryRunner():
         for func in func_list:
             if list(func.keys())[0] == 'sum':
                 # for every dict in every list of dicts sum values for sum key
+                
                 for tab in res_tab:
                     sum_res = 0
                     for t in tab:
@@ -151,8 +152,9 @@ class QueryRunner():
                     tmp = {}
                     if key not in dict.keys():
                         dict[key] = 0
+
         result = self.sort_keys(result)
-           #  dict = sorted(dict.items(), key=lambda x: datetime.strptime(x[0], '%d.%m.%Y'), reverse=False)
+            #  dict = sorted(dict.items(), key=lambda x: datetime.strptime(x[0], '%d.%m.%Y'), reverse=False)
         return result
 
     def sort_keys(self, dict_list):
@@ -163,12 +165,24 @@ class QueryRunner():
             value = dic[key]
             temp[key] = value  # save dict key and value in temp
             dic.pop(key)
-            dic = sorted(dic.items(), key=lambda x: datetime.strptime(x[0], '%Y.%m.%d'), reverse=False)
+            if self.validate_date(dic):
+                dic = sorted(dic.items(), key=lambda x: datetime.strptime(x[0], '%Y.%m.%d'), reverse=False)
+            else:
+                dic = sorted(dic.items())
             dic = dict(dic)
             temp.update(dic)
             res.append(temp)
 
         return res
+
+    def validate_date(self, dict):
+        try:
+            datetime.strptime(list(dict.keys())[0], '%Y.%m.%d')
+            flag = True
+        except ValueError:
+            flag = False
+
+        return flag
 
     '''
     sort function isn't needed problem solved with app.config['JSON_SORT_KEYS'] = False
